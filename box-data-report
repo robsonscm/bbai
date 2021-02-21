@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+import getopt
+import sys
+
+
+from src.report import report
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "h")
+    for opt, arg in opts:
+        if opt == '-h':
+            print("Syntax to call this script:\n"
+                  "box-data-report <start date> <end date>\n\n"
+                  "## If no date is informed, the result will include all boxes/RPi in the database ##\n"
+                  "## If just one date is informed, this will be used as the <start date> ##")
+            sys.exit()
+    #
+    start_date = '1900-01-01'
+    end_date = '2900-01-01'
+    #
+    try:
+        start_date = args[0]
+    except IndexError:
+        print(f"Stating date not informed. Assuming {start_date}.")
+    try:
+        end_date = args[1]
+    except IndexError:
+        print(f"Ending date not informed. Assuming {end_date}.")
+    #
+    report(start_date, end_date)
+except getopt.GetoptError as err:
+    print(f'Get Option error: {err}')
+    sys.exit(2)
+
