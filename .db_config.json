@@ -1,0 +1,7 @@
+{
+    "database": "brainboxai_challenge",
+    "host": "127.0.0.1",
+    "password": "",
+    "raise_on_warnings": true,
+    "user": "root"
+}
