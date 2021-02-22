@@ -151,4 +151,5 @@ crashlytics-build.properties
 fabric.properties
 
 #Project Virtual Environment
-venv
+/docs/
+/venv/
