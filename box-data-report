@@ -11,6 +11,7 @@ try:
         if opt == '-h':
             print("Syntax to call this script:\n"
                   "box-data-report <start date> <end date>\n\n"
+                  "## Date format must be <YYYY-MM-DD> ##\n"
                   "## If no date is informed, the result will include all boxes/RPi in the database ##\n"
                   "## If just one date is informed, this will be used as the <start date> ##")
             sys.exit()

@@ -21,12 +21,3 @@ class DbConnector:
             data = cursor.fetchall()
         cursor.close()
         return data
-
-
-# def create_database(cursor, db_name):
-#     try:
-#         cursor.execute(
-#             "CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(db_name))
-#     except mysql.connector.Error as err:
-#         print("Failed creating database: {}".format(err))
-#         exit(1)
