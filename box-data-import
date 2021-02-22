@@ -7,18 +7,20 @@ from src.load import load
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "h")
-    if len(args) < 1:
-        print("At least one file must be informed.\nbox-data-import <file 1> <file 2> <file n>")
-    #
     for opt, arg in opts:
         if opt == '-h':
             print("Syntax to call this script:\nbox-data-import <file 1> <file 2> <file n>")
             sys.exit(1)
 
+    if len(args) < 1:
+        print("At least one file must be informed.\nbox-data-import <file 1> <file 2> <file n>")
+        sys.exit(2)
+    #
+
     for file in args:
         if not path.exists(file) or not path.isfile(file):
             print(f"'{file}' is not a file or its path is invalid: {args}")
-            sys.exit(2)
+            sys.exit(3)
 
     load(args)
 except getopt.GetoptError as err:

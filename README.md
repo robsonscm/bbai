@@ -1,106 +1,78 @@
- S3 Monitor
+Data Load - Python/MySQL
 --------------------------
 
-Project created for the Coveo DevOps Challenge
+Project created for the BrainBox Ai Challenge
 
- Usage
+Remarks and assumptions:
+-------------------------
+- The environment has Python 3.7 installed and working
+    - I used PyEnv to set up python's version and venv. 
+    - It should be transparent, but just in case something looks weird to you in the project/execution.
+- The environment has MySQL 5.7.32 installed and working.
+    - I used a Brew installation of MySQL.
+    - I went with the basic of basics in the official docs for Python/MySQL connector.
+- The DB connection will be set up running ``` config-project ``` script
+    - There's no user creation included in the project setup
+    - I did not create a new user. I installed MySQL and used 'root' user with no password for tests only.   
+    -- DO NOT RECOMMEND IT FOR ANY REAL IMPLEMENTATION - BE ALWAYS AWARE OF YOUR DATA SECURITY -- :)
+    - The user/password you choose must have all the privileges to create and CRUD the tables.
+- For the DB connection I'm using a db-config file in the root folder. 
+    - In a more realistic scenario, this should be stored safely in a vault/encrypted solution
+    
+
+Usage
 ---------------------
-Recommendation:  
- Although the idea of running all the buckets in the account at the same time is great, I believe the execution of this script should be associated to an orchestrator, such as Jenkins.  
- You can then break the execution by a region or storage type. They can run in parallel and using different AWS API sessions. Once all of them return, we can just aggregate the responses.     
+Installation:  
+- Clone the project using ```git clone https://github.com/robsonscm/bbai.git```
+- To install all the dependencies, please, run ```pip install -r requirements.txt```
+- Please make sure the ``` config-project ``` script is executable
+  - ``` chmod +x config-project ```
+- run the ``` config-project ``` script
+  - if all goes well, and you choose to just go with the default values, you should have an output like this:
+  ```
+  ▶ ./config-project   
+  =============== Project Setup =================
+  Let's set up the database connection first
+  host [default:127.0.0.1]: 
+  db name [default:brainboxai_challenge]: 
+  username [default:root]: 
+  password [default:]: 
+  DB is set up and working
+  Creating table boxes: already exists.
+  Creating table rpis: already exists.
+  (venv) 
+  ```    
+- The project is now set and ready to use. 
+- You should now run the import script to load the DB --> ``` box-data-import ``` 
+- Then run the report script to query the results --> ``` box-data-report ``` 
 
+Help:  
+- ```
+    ▶ ./box-data-import -h                 
+    Syntax to call this script:
+    box-data-import <file 1> <file 2> <file n>
+    (venv)
+  ```  
+- ```
+    ▶ ./box-data-report -h                       
+    Syntax to call this script:
+    box-data-report <start date> <end date>
+    
+    ## If no date is informed, the result will include all boxes/RPi in the database ##
+    ## If just one date is informed, this will be used as the <start date> ##
+    (venv) 
+  ```  
 
-Prerequisites:
+Tech stack
+---------------------
 - Python  
     - https://www.python.org/downloads/
-    - Version 3.9
-- Boto3
-    - https://pypi.org/project/boto3/
-    - Version 1.16.19
-    
-Help:  
-- ```python3 s3_monitor.py -h```  
+    - Version 3.7.10
+- MySQL
+    - https://www.mysql.com/downloads/
+    - Version 5.7.32
+- PyEnv
+  - https://github.com/pyenv/pyenv-virtualenv
+  - https://opensource.com/article/20/4/pyenv
+  - Version 1.2.23
 
-Examples:  
-- ```python3 s3_monitor.py -p user1-dev```
-- ```python3 s3_monitor.py -p user1-dev -r us-east-2```
-- ```python3 s3_monitor.py -p user1-dev -b my-bucket```
-- ```python3 s3_monitor.py -p user1-dev -r us-west-1 -s StandardStorage```
-- ```python3 s3_monitor.py -p user1-dev -s GlacierStorage```
-
-Options:
-
-| Options | Value | Mandatory |
-| ------- | ----- | --------- |
-| -h  | Displays help message.<br>When used it will disregard the other options | no |
-| -p  | AWS Profile to process the routine - e.g. user1-dev  | **YES** |
-| -r  | Specific region to run the tool                      | no |
-| -b  | Specific bucket to run the tool                      | no |
-| -s  | Specific storage type to get information from        | no |
-
-
-**INFO**  
-How to set up your AWS profile? [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html)
-------------------------------------------------------------------------------------
-Outputs
----------------------
-JSON Object with a list of buckets and their information
-```JSON
-[
-  {
-    "name": "my-bucket",
-    "creation_date": "2020-05-04 15:13:08+00:00",
-    "region": "us-east-1",
-    "storage": {
-      "StandardStorage": {
-        "size": 440440195.0,
-        "cost": 0.01
-      }
-    },
-    "total_size": 440440195.0,
-    "total_cost": 0.01,
-    "num_objects": 658.0,
-    "last_modified": "2020-11-16 22:53:00+00:00"
-  }
-]
-```
-
-Out of Scope
---------------------
-- **Bucket Cost Calculation**
-  - The implementation is just for the purpose of showing we'd have a calculation going on. 
-    It just estimates the storage, not all the costs involved with S3, nor the different prices per region.   
-    There's no API or reliable source code to calculate S3 usage available. Also, calculating this in ad-hoc calls is 
-    not something very precise. (prices and free tiers change from time to time)    
----    
-
-Ok, why are you not elaborating on this?  
-It looks like a lazy job to 110% of the reviewers ;)  
-
-Well, it makes sense to discuss with the team possible solutions before spiking any re-invention of the wheel. Right?
-
-I have a couple of suggestions from the top of my head then:   
-1. An enhancement of what AWS offers:
-  - Create a real matrix of prices according to the storage type, region, number of requests, I/O traffic, etc., using https://aws.amazon.com/s3/pricing/.
-  - Save it in a DynamoDB table, then set a periodic check with CloudWatch to keep up with the prices.  
-  - We can also set some storage class metrics in the buckets, which is going to reflect in CloudWatch.
-  - Use CloudWatch metrics to get bucket information (same approach I'm using for the Size and Num of objects).
-  - Then we apply the cost matrix on top of the metrics to get the total cost of S3.  
-2. The one I like :)
-  - Use Cost Explorer to identify the cost related to each bucket.
-  - We'd need to add a tag to identify each bucket (e.g. "bucket_name" with the name of each bucket as value)
-  - Then we'd enable Cost Allocation Tags in the Billing Dashboard and activate the "bucket_name" tag.
-  - With this set up we can use an API call to Cost Explorer using the service and bucket_name tag as dimensions and check the current cost of the specific bucket, in total. 
----
- 
-- Grouping by a region:  
-  - Though I have not implemented it, as the response object has the information, we can just transform the data after the process ends.
-  
-- Size results:
-  - Results are in Bytes as CloudWatch sends it by default.
-  
-- Number of files per Storage Type:
-  - This feature hasn't been implemented. We do have the size per storage type though.
-
-
-  

@@ -16,7 +16,7 @@ def load(files):
         db = DbConnector()
         for file in files:
             print("=================================")
-            print(f"===> Start importing from {file}")
+            print(f"===> Start processing file {file}")
             print("=================================")
             f = open(file, 'r')
             count = 0
@@ -41,14 +41,14 @@ def load(files):
                         db.execute(add_rpi)
                     #
                     db.cnx.commit()
+                    print(f"Line {count} - Imported!")
                 except mysql.connector.Error as err:
                     db.cnx.rollback()
                     print(f"Line {count} - Error: {err}")
-                print(f"Line {count} - Imported!")
             #
             f.close()
             print("==================================")
-            print(f"===> Finish importing from {file}")
+            print(f"===> Finish processing file {file}")
             print("==================================\n\n")
         db.cnx.close()
 
